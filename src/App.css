@@ -1,0 +1,131 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.counter-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+  color: #fff;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+.count {
+  font-size: 4rem;
+  color: #fff;
+  margin: 1rem 0 2rem;
+  font-weight: 200;
+  font-family: 'SF Mono', monospace;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 120px;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.increment-button {
+  background: rgba(46, 196, 182, 0.2);
+}
+
+.increment-button:hover {
+  background: rgba(46, 196, 182, 0.3);
+}
+
+.decrement-button {
+  background: rgba(255, 107, 107, 0.2);
+}
+
+.decrement-button:hover {
+  background: rgba(255, 107, 107, 0.3);
+}
+
+.auto-count-button,
+.auto-decrease-button {
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+}
+
+.auto-count-button.active,
+.auto-decrease-button.active {
+  background: rgba(255, 107, 107, 0.3);
+}
+
+.auto-button-container {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
