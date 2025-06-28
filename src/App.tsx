@@ -1,5 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Paper,
+  Stack,
+  Fab,
+  ThemeProvider,
+  createTheme,
+  CssBaseline
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Remove as RemoveIcon,
+  PlayArrow as PlayIcon,
+  Stop as StopIcon
+} from '@mui/icons-material';
+
+// カスタムテーマを作成
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+  typography: {
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 600,
+      textAlign: 'center',
+      marginBottom: '2rem',
+    },
+  },
+});
 
 function App() {
   const [count, setCount] = useState(0);
@@ -28,35 +65,126 @@ function App() {
     setIsAutoCounting(false);
   };
 
+  const resetCount = () => {
+    setCount(0);
+    setIsAutoCounting(false);
+    setIsAutoDecreasing(false);
+  };
+
   return (
-    <div className="App">
-      <div className="counter-container">
-        <h1>カウンター</h1>
-        <div className="count">{count}</div>
-        <div className="button-container">
-          <button onClick={() => setCount(prev => prev - 1)} className="decrement-button">
-            -
-          </button>
-          <button onClick={() => setCount(prev => prev + 1)} className="increment-button">
-            +
-          </button>
-        </div>
-        <div className="auto-button-container">
-          <button 
-            onClick={toggleAutoCount} 
-            className={`auto-count-button ${isAutoCounting ? 'active' : ''}`}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            py: 4,
+          }}
+        >
+          <Paper
+            elevation={8}
+            sx={{
+              p: 4,
+              borderRadius: 3,
+              width: '100%',
+              textAlign: 'center',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+            }}
           >
-            {isAutoCounting ? '停止' : '自動+'}
-          </button>
-          <button 
-            onClick={toggleAutoDecrease} 
-            className={`auto-decrease-button ${isAutoDecreasing ? 'active' : ''}`}
-          >
-            {isAutoDecreasing ? '停止' : '自動-'}
-          </button>
-        </div>
-      </div>
-    </div>
+            <Typography variant="h1" sx={{ mb: 4, color: 'white' }}>
+              カウンター
+            </Typography>
+            
+            <Typography
+              variant="h2"
+              sx={{
+                fontSize: '4rem',
+                fontWeight: 'bold',
+                mb: 4,
+                color: 'white',
+                textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+              }}
+            >
+              {count}
+            </Typography>
+
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+              <Fab
+                color="secondary"
+                onClick={() => setCount(prev => prev - 1)}
+                sx={{ width: 56, height: 56 }}
+              >
+                <RemoveIcon />
+              </Fab>
+              <Fab
+                color="primary"
+                onClick={() => setCount(prev => prev + 1)}
+                sx={{ width: 56, height: 56 }}
+              >
+                <AddIcon />
+              </Fab>
+            </Stack>
+
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+              <Button
+                variant={isAutoCounting ? "contained" : "outlined"}
+                color="success"
+                onClick={toggleAutoCount}
+                startIcon={isAutoCounting ? <StopIcon /> : <PlayIcon />}
+                sx={{ 
+                  minWidth: 120,
+                  color: isAutoCounting ? 'white' : 'white',
+                  borderColor: 'white',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                  }
+                }}
+              >
+                {isAutoCounting ? '停止' : '自動+'}
+              </Button>
+              <Button
+                variant={isAutoDecreasing ? "contained" : "outlined"}
+                color="error"
+                onClick={toggleAutoDecrease}
+                startIcon={isAutoDecreasing ? <StopIcon /> : <PlayIcon />}
+                sx={{ 
+                  minWidth: 120,
+                  color: 'white',
+                  borderColor: 'white',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                  }
+                }}
+              >
+                {isAutoDecreasing ? '停止' : '自動-'}
+              </Button>
+            </Stack>
+
+            <Button
+              variant="outlined"
+              onClick={resetCount}
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                }
+              }}
+            >
+              リセット
+            </Button>
+          </Paper>
+        </Box>
+      </Container>
+    </ThemeProvider>
   );
 }
 
