@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -6,7 +6,6 @@ import {
   Button,
   Paper,
   Stack,
-  Fab,
   ThemeProvider,
   createTheme,
   CssBaseline
@@ -14,8 +13,7 @@ import {
 import {
   Add as AddIcon,
   Remove as RemoveIcon,
-  PlayArrow as PlayIcon,
-  Stop as StopIcon
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 
 // カスタムテーマを作成
@@ -28,47 +26,27 @@ const theme = createTheme({
       main: '#dc004e',
     },
   },
-  typography: {
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600,
-      textAlign: 'center',
-      marginBottom: '2rem',
-    },
-  },
 });
 
 function App() {
+  // useStateフックを使用してカウントの状態を管理
+  // count: 現在のカウント値（初期値は0）
+  // setCount: カウント値を更新するための関数
   const [count, setCount] = useState(0);
-  const [isAutoCounting, setIsAutoCounting] = useState(false);
-  const [isAutoDecreasing, setIsAutoDecreasing] = useState(false);
 
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    if (isAutoCounting) {
-      intervalId = setInterval(() => setCount(prev => prev + 1), 1000);
-    } else if (isAutoDecreasing) {
-      intervalId = setInterval(() => setCount(prev => prev - 1), 1000);
-    }
-
-    return () => intervalId && clearInterval(intervalId);
-  }, [isAutoCounting, isAutoDecreasing]);
-
-  const toggleAutoCount = () => {
-    setIsAutoCounting(prev => !prev);
-    setIsAutoDecreasing(false);
+  // カウントアップボタンがクリックされたときの処理
+  const handleIncrement = () => {
+    setCount(count + 1); // 現在のカウント値に1を加算
   };
 
-  const toggleAutoDecrease = () => {
-    setIsAutoDecreasing(prev => !prev);
-    setIsAutoCounting(false);
+  // カウントダウンボタンがクリックされたときの処理
+  const handleDecrement = () => {
+    setCount(count - 1); // 現在のカウント値から1を減算
   };
 
-  const resetCount = () => {
-    setCount(0);
-    setIsAutoCounting(false);
-    setIsAutoDecreasing(false);
+  // リセットボタンがクリックされたときの処理
+  const handleReset = () => {
+    setCount(0); // カウント値を0にリセット
   };
 
   return (
@@ -96,10 +74,12 @@ function App() {
               color: 'white',
             }}
           >
+            {/* アプリケーションのタイトル */}
             <Typography variant="h1" sx={{ mb: 4, color: 'white' }}>
-              カウンター
+              カウントアプリ
             </Typography>
             
+            {/* 現在のカウント値を表示 */}
             <Typography
               variant="h2"
               sx={{
@@ -110,69 +90,51 @@ function App() {
                 textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
               }}
             >
-              {count}
+              現在のカウント: {count}
             </Typography>
 
+            {/* ボタンコンテナ */}
             <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
-              <Fab
+              {/* カウントダウンボタン（追加要件） */}
+              <Button
+                variant="contained"
                 color="secondary"
-                onClick={() => setCount(prev => prev - 1)}
-                sx={{ width: 56, height: 56 }}
+                onClick={handleDecrement}
+                startIcon={<RemoveIcon />}
+                sx={{ 
+                  minWidth: 120,
+                  fontSize: '1.1rem',
+                  py: 1.5
+                }}
               >
-                <RemoveIcon />
-              </Fab>
-              <Fab
+                －1する
+              </Button>
+              
+              {/* カウントアップボタン（最低要件） */}
+              <Button
+                variant="contained"
                 color="primary"
-                onClick={() => setCount(prev => prev + 1)}
-                sx={{ width: 56, height: 56 }}
-              >
-                <AddIcon />
-              </Fab>
-            </Stack>
-
-            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
-              <Button
-                variant={isAutoCounting ? "contained" : "outlined"}
-                color="success"
-                onClick={toggleAutoCount}
-                startIcon={isAutoCounting ? <StopIcon /> : <PlayIcon />}
+                onClick={handleIncrement}
+                startIcon={<AddIcon />}
                 sx={{ 
                   minWidth: 120,
-                  color: isAutoCounting ? 'white' : 'white',
-                  borderColor: 'white',
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  }
+                  fontSize: '1.1rem',
+                  py: 1.5
                 }}
               >
-                {isAutoCounting ? '停止' : '自動+'}
-              </Button>
-              <Button
-                variant={isAutoDecreasing ? "contained" : "outlined"}
-                color="error"
-                onClick={toggleAutoDecrease}
-                startIcon={isAutoDecreasing ? <StopIcon /> : <PlayIcon />}
-                sx={{ 
-                  minWidth: 120,
-                  color: 'white',
-                  borderColor: 'white',
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  }
-                }}
-              >
-                {isAutoDecreasing ? '停止' : '自動-'}
+                ＋1する
               </Button>
             </Stack>
 
+            {/* リセットボタン */}
             <Button
               variant="outlined"
-              onClick={resetCount}
+              onClick={handleReset}
+              startIcon={<RefreshIcon />}
               sx={{
                 color: 'white',
                 borderColor: 'white',
+                fontSize: '1rem',
                 '&:hover': {
                   borderColor: 'white',
                   backgroundColor: 'rgba(255,255,255,0.1)',
