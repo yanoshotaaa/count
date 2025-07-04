@@ -5,14 +5,12 @@ import {
   Typography,
   Button,
   Paper,
-  Stack,
   ThemeProvider,
   createTheme,
   CssBaseline
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Remove as RemoveIcon,
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 
@@ -21,9 +19,6 @@ const theme = createTheme({
   palette: {
     primary: {
       main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
     },
   },
 });
@@ -37,11 +32,6 @@ function App() {
   // カウントアップボタンがクリックされたときの処理
   const handleIncrement = () => {
     setCount(count + 1); // 現在のカウント値に1を加算
-  };
-
-  // カウントダウンボタンがクリックされたときの処理
-  const handleDecrement = () => {
-    setCount(count - 1); // 現在のカウント値から1を減算
   };
 
   // リセットボタンがクリックされたときの処理
@@ -94,22 +84,7 @@ function App() {
             </Typography>
 
             {/* ボタンコンテナ */}
-            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
-              {/* カウントダウンボタン（追加要件） */}
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleDecrement}
-                startIcon={<RemoveIcon />}
-                sx={{ 
-                  minWidth: 120,
-                  fontSize: '1.1rem',
-                  py: 1.5
-                }}
-              >
-                －1する
-              </Button>
-              
+            <Box sx={{ mb: 3 }}>
               {/* カウントアップボタン（最低要件） */}
               <Button
                 variant="contained"
@@ -119,30 +94,31 @@ function App() {
                 sx={{ 
                   minWidth: 120,
                   fontSize: '1.1rem',
-                  py: 1.5
+                  py: 1.5,
+                  mr: 2
                 }}
               >
                 ＋1する
               </Button>
-            </Stack>
-
-            {/* リセットボタン */}
-            <Button
-              variant="outlined"
-              onClick={handleReset}
-              startIcon={<RefreshIcon />}
-              sx={{
-                color: 'white',
-                borderColor: 'white',
-                fontSize: '1rem',
-                '&:hover': {
+              
+              {/* リセットボタン */}
+              <Button
+                variant="outlined"
+                onClick={handleReset}
+                startIcon={<RefreshIcon />}
+                sx={{
+                  color: 'white',
                   borderColor: 'white',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                }
-              }}
-            >
-              リセット
-            </Button>
+                  fontSize: '1rem',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                  }
+                }}
+              >
+                リセット
+              </Button>
+            </Box>
           </Paper>
         </Box>
       </Container>
