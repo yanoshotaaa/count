@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from "react";
 import {
   Container,
   Box,
@@ -6,17 +6,26 @@ import {
   Button,
   Paper,
   Stack,
-  Fab,
   ThemeProvider,
   createTheme,
-  CssBaseline
+  CssBaseline,
+  Alert,
+  Snackbar,
+  Chip
 } from '@mui/material';
 import {
   Add as AddIcon,
   Remove as RemoveIcon,
-  PlayArrow as PlayIcon,
-  Stop as StopIcon
+  Refresh as RefreshIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Clear as ClearIcon
 } from '@mui/icons-material';
+
+// カスタムフックと型定義をインポート
+import { useCount } from './hooks/useCount';
+import { useNotification } from './hooks/useNotification';
+import { CountActions } from './types/count';
 
 // カスタムテーマを作成
 const theme = createTheme({
@@ -27,54 +36,51 @@ const theme = createTheme({
     secondary: {
       main: '#dc004e',
     },
-  },
-  typography: {
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600,
-      textAlign: 'center',
-      marginBottom: '2rem',
+    success: {
+      main: '#2e7d32',
+    },
+    warning: {
+      main: '#ed6c02',
     },
   },
 });
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [isAutoCounting, setIsAutoCounting] = useState(false);
-  const [isAutoDecreasing, setIsAutoDecreasing] = useState(false);
+  // カスタムフックを使用
+  const {
+    count,
+    history,
+    stats,
+    range,
+    executeOperation,
+    clearHistory,
+    getCountColor,
+    isAtLimit
+  } = useCount({ min: -100, max: 100 });
 
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+  const { notification, showNotification, hideNotification } = useNotification();
 
-    if (isAutoCounting) {
-      intervalId = setInterval(() => setCount(prev => prev + 1), 1000);
-    } else if (isAutoDecreasing) {
-      intervalId = setInterval(() => setCount(prev => prev - 1), 1000);
-    }
-
-    return () => intervalId && clearInterval(intervalId);
-  }, [isAutoCounting, isAutoDecreasing]);
-
-  const toggleAutoCount = () => {
-    setIsAutoCounting(prev => !prev);
-    setIsAutoDecreasing(false);
+  // カウント操作を実行し、結果に応じて通知を表示
+  const handleOperation = (operation: 'increment' | 'decrement' | 'reset'): void => {
+    const result = executeOperation(operation);
+    showNotification(result.message, result.severity);
   };
 
-  const toggleAutoDecrease = () => {
-    setIsAutoDecreasing(prev => !prev);
-    setIsAutoCounting(false);
+  // 履歴クリア時の通知
+  const handleClearHistory = (): void => {
+    clearHistory();
+    showNotification('履歴をクリアしました！', 'info');
   };
 
-  const resetCount = () => {
-    setCount(0);
-    setIsAutoCounting(false);
-    setIsAutoDecreasing(false);
+  // 最新の操作を取得
+  const getLatestOperation = () => {
+    return history.length > 0 ? history[history.length - 1] : null;
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container maxWidth="sm">
+      <Container maxWidth="md">
         <Box
           sx={{
             minHeight: '100vh',
@@ -96,93 +102,180 @@ function App() {
               color: 'white',
             }}
           >
+            {/* アプリケーションのタイトル */}
             <Typography variant="h1" sx={{ mb: 4, color: 'white' }}>
-              カウンター
+              TypeScript カウントアプリ
             </Typography>
             
+            {/* 現在のカウント値を表示 */}
             <Typography
               variant="h2"
               sx={{
                 fontSize: '4rem',
                 fontWeight: 'bold',
                 mb: 4,
-                color: 'white',
+                color: getCountColor(count),
                 textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
               }}
             >
-              {count}
+              現在のカウント: {count}
             </Typography>
 
-            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
-              <Fab
-                color="secondary"
-                onClick={() => setCount(prev => prev - 1)}
-                sx={{ width: 56, height: 56 }}
-              >
-                <RemoveIcon />
-              </Fab>
-              <Fab
-                color="primary"
-                onClick={() => setCount(prev => prev + 1)}
-                sx={{ width: 56, height: 56 }}
-              >
-                <AddIcon />
-              </Fab>
-            </Stack>
+            {/* 制限値の表示 */}
+            <Typography variant="body1" sx={{ mb: 3, color: 'rgba(255,255,255,0.8)' }}>
+              範囲: {range.min} ~ {range.max}
+            </Typography>
 
+            {/* ボタンコンテナ */}
             <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+              {/* カウントダウンボタン */}
               <Button
-                variant={isAutoCounting ? "contained" : "outlined"}
-                color="success"
-                onClick={toggleAutoCount}
-                startIcon={isAutoCounting ? <StopIcon /> : <PlayIcon />}
+                variant="contained"
+                color="secondary"
+                onClick={() => handleOperation(CountActions.DECREMENT)}
+                startIcon={<RemoveIcon />}
+                disabled={isAtLimit('min')}
                 sx={{ 
                   minWidth: 120,
-                  color: isAutoCounting ? 'white' : 'white',
-                  borderColor: 'white',
-                  '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                  }
+                  fontSize: '1.1rem',
+                  py: 1.5
                 }}
               >
-                {isAutoCounting ? '停止' : '自動+'}
+                －1する
               </Button>
+              
+              {/* カウントアップボタン */}
               <Button
-                variant={isAutoDecreasing ? "contained" : "outlined"}
-                color="error"
-                onClick={toggleAutoDecrease}
-                startIcon={isAutoDecreasing ? <StopIcon /> : <PlayIcon />}
+                variant="contained"
+                color="primary"
+                onClick={() => handleOperation(CountActions.INCREMENT)}
+                startIcon={<AddIcon />}
+                disabled={isAtLimit('max')}
                 sx={{ 
                   minWidth: 120,
+                  fontSize: '1.1rem',
+                  py: 1.5
+                }}
+              >
+                ＋1する
+              </Button>
+            </Stack>
+
+            {/* リセットと履歴クリアボタン */}
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
+              <Button
+                variant="outlined"
+                onClick={() => handleOperation(CountActions.RESET)}
+                startIcon={<RefreshIcon />}
+                sx={{
                   color: 'white',
                   borderColor: 'white',
+                  fontSize: '1rem',
                   '&:hover': {
                     borderColor: 'white',
                     backgroundColor: 'rgba(255,255,255,0.1)',
                   }
                 }}
               >
-                {isAutoDecreasing ? '停止' : '自動-'}
+                リセット
+              </Button>
+              
+              <Button
+                variant="outlined"
+                onClick={handleClearHistory}
+                startIcon={<ClearIcon />}
+                sx={{
+                  color: 'white',
+                  borderColor: 'white',
+                  fontSize: '1rem',
+                  '&:hover': {
+                    borderColor: 'white',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                  }
+                }}
+              >
+                履歴クリア
               </Button>
             </Stack>
 
-            <Button
-              variant="outlined"
-              onClick={resetCount}
-              sx={{
-                color: 'white',
-                borderColor: 'white',
-                '&:hover': {
-                  borderColor: 'white',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                }
-              }}
-            >
-              リセット
-            </Button>
+            {/* 統計情報 */}
+            {stats.totalOperations > 0 && (
+              <Box sx={{ mt: 3, p: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  統計情報
+                </Typography>
+                <Stack direction="row" spacing={1} justifyContent="center" sx={{ mb: 2 }}>
+                  <Chip 
+                    label={`総操作: ${stats.totalOperations}回`} 
+                    color="primary" 
+                    variant="outlined"
+                    sx={{ color: 'white', borderColor: 'white' }}
+                  />
+                  <Chip 
+                    label={`平均値: ${stats.averageValue}`} 
+                    color="secondary" 
+                    variant="outlined"
+                    sx={{ color: 'white', borderColor: 'white' }}
+                  />
+                </Stack>
+                <Stack direction="row" spacing={1} justifyContent="center">
+                  <Chip 
+                    icon={<TrendingUpIcon />}
+                    label={`+1: ${stats.incrementCount}回`} 
+                    color="success" 
+                    variant="outlined"
+                    sx={{ color: 'white', borderColor: 'white' }}
+                  />
+                  <Chip 
+                    icon={<TrendingDownIcon />}
+                    label={`-1: ${stats.decrementCount}回`} 
+                    color="error" 
+                    variant="outlined"
+                    sx={{ color: 'white', borderColor: 'white' }}
+                  />
+                  <Chip 
+                    label={`リセット: ${stats.resetCount}回`} 
+                    color="warning" 
+                    variant="outlined"
+                    sx={{ color: 'white', borderColor: 'white' }}
+                  />
+                </Stack>
+              </Box>
+            )}
+
+            {/* 最新の操作履歴 */}
+            {getLatestOperation() && (
+              <Box sx={{ mt: 3, p: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  最新の操作
+                </Typography>
+                <Typography variant="body2">
+                  操作: {getLatestOperation()?.operation === 'increment' ? 'カウントアップ' : 
+                         getLatestOperation()?.operation === 'decrement' ? 'カウントダウン' : 'リセット'}
+                </Typography>
+                <Typography variant="body2">
+                  時刻: {getLatestOperation()?.timestamp.toLocaleTimeString()}
+                </Typography>
+              </Box>
+            )}
           </Paper>
         </Box>
+
+        {/* 通知スナックバー */}
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={3000}
+          onClose={hideNotification}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={hideNotification} 
+            severity={notification.severity}
+            sx={{ width: '100%' }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </ThemeProvider>
   );
